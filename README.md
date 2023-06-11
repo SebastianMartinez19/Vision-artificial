@@ -8,7 +8,9 @@ Este proyeo sera llevado a cabo en matlab.
 Al tratarse de vision artifical lo primero que debemos obtener es la imagen, o el como obtener imagenes en matlab, por lo que haremos uso del siguiente codigo base.
 
 cam = webcam(); % damos un objeto camara
+
 cam.Resolution='720x480';
+
 foto_objeto = snapshot(cam); %tomamos un imagen inicial
 
 De este modo obtenemos la imagen, para mostrarla podemos hacer uso de una de los manera

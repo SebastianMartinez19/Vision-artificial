@@ -52,12 +52,46 @@ n=frame_size(2); %esto es x
 % %creamos el filtro pasa bajas para suavizar
 
 filtro=zeros(m,n);
+
 sigma=0.04;
+
 for y=1:m
+
         dy=(y-m/2)/(m/2);
+        
         for x=1:n
+        
             dx=(x-n/2)/(n/2);
+            
             dxy=sqrt(dx^2+dy^2);
+            
             filtro(y,x)=exp(-(dxy^2)/(2*sigma^2));
+            
         end
+        
 end
+
+Una vez que tenemos nuestro filtro, ahora si podemos proceder a suavizar nuestra imagen.
+
+Al tratarse de una imagen en rgb, es decir, con profundidad n,m,o donde n, es el eje horizontal; m, el eje vertical; y o, los planos de cada escalar de color, r g b, por lo que nuestro filtro al tratarse de una imagen bidimensional, tenemos que aplicarlo pr medio de un ciclo for por cada una de las capas.
+
+Para poder llevar nuestra imagen a la frecuencia pasamos por la funcion de matlab de la tranformada rapida de Fourier para imegenes de dos dimensiones en una sola capa de nuestra imagen (fft2), no obstante esta funsion nos da los armonicos desordenados, por lo que pasamos a usar la funcion de organizar la transformada rapida de Fourier (fftshift) que recibe de argumento la imagen en frecuencia, una vez ahi multiplicamos elemento a elemento la imagen obtenida en la frecuencia con nuestro filtro, una vez filtrada la capa, regresamos son fftshift y a eso aplicamos la transformada inversa rapida de Fourier para dos dimensiones (ifft2), dicho de otro modo tenemos lo siguinete.
+
+profundidad = frame_size(3);
+
+for z=1:profundidad
+
+        %pasamos la imagen a la frecuencia
+        
+        frame_f(:,:,z) = fftshift(fft2(frame(:,:,z)));
+        
+        %filtramos
+        
+        frame_ff(:,:,z) = filtro.*frame_f(:,:,z);
+        
+        %regresamos al espacio
+        
+        frame(:,:,z) = ifft2(ifftshift(frame_ff(:,:,z)));
+        
+end
+    

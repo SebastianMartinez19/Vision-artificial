@@ -35,4 +35,29 @@ while runloop
 end
 
 ## Tratado de imagen
-Una vez obtenida la imagen es necesario tratarla, en este caso nos enfocaremos en un objeto dado el color del mismo, por lo que haremos una busqueda por color, no obstante esta viene con ruido, por lo que haremos uso de la transformada de Fourirer para llevar la imagen a la frecuencia y de esta manera hacer una multiplicacion con un filtro pasa altas para suavizar la imagen, y regreserla al espacio temporal lo que es equivalente a la convolucion en el tiempo.
+Una vez obtenida la imagen es necesario tratarla, en este caso nos enfocaremos en un objeto dado el color del mismo, por lo que haremos una busqueda por color, no obstante esta viene con ruido, por lo que haremos uso de la transformada de Fourirer para llevar la imagen a la frecuencia y de esta manera hacer una multiplicacion con un filtro pasa bajas para suavizar la imagen, y regreserla al espacio temporal lo que es equivalente a la convolucion en el tiempo.
+
+Para poder realizar lo anterior nos guiaremos en el el siguiente script, primero generaremos el filtro pasa bajas pero no de la forma ideal, sino en forma de campana de gauss dadas las siguientes formulas
+
+![image](https://github.com/SebastianMartinez19/Vision-artificial/assets/106949729/7d8c3973-6905-4d61-b5e5-06124b84698a)
+
+De lo que obtenemos el siguiente script
+
+% %% creacion de filtro pasa bajas
+
+m = frame_size(1); %esto es y
+
+n=frame_size(2); %esto es x
+
+% %creamos el filtro pasa bajas para suavizar
+
+filtro=zeros(m,n);
+sigma=0.04;
+for y=1:m
+        dy=(y-m/2)/(m/2);
+        for x=1:n
+            dx=(x-n/2)/(n/2);
+            dxy=sqrt(dx^2+dy^2);
+            filtro(y,x)=exp(-(dxy^2)/(2*sigma^2));
+        end
+end

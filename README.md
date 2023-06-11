@@ -7,32 +7,34 @@ Este proyeo sera llevado a cabo en matlab.
 
 Al tratarse de vision artifical lo primero que debemos obtener es la imagen, o el como obtener imagenes en matlab, por lo que haremos uso del siguiente codigo base.
 
-cam = webcam(); % damos un objeto camara
+    cam = webcam(); % damos un objeto camara
 
-cam.Resolution='720x480';
+    cam.Resolution='720x480';
 
-foto_objeto = snapshot(cam); %tomamos un imagen inicial
+    foto_objeto = snapshot(cam); %tomamos un imagen inicial
 
 De este modo obtenemos la imagen, para mostrarla podemos hacer uso de una de los manera
 
 Forma 1:
-While true
-  imshow(cam)
-end
+
+    While true
+        imshow(cam)
+    end
 
 Forma 2: (usada en este proyecto)
 Consiste en crear un videoplayer, propio de matlab
 
-frame_size = size(foto_objeto); %obtenemos sus medidas
-videoPlayer = vision.VideoPlayer('Position',[10 30 [frame_size(2),frame_size(1)]]); %creamos un visualizador de video
+    frame_size = size(foto_objeto); %obtenemos sus medidas
+    videoPlayer = vision.VideoPlayer('Position',[10 30 [frame_size(2),frame_size(1)]]); %creamos un visualizador de video
 
 % capturamos la imagen de nuestro objeto a seguir
-runloop=true; %creamos un control para el primer video en la capturadel objeto
-while runloop
-    foto_objeto=snapshot(cam); %tomamos la foto de nuestro objeto
-    step(videoPlayer,foto_objeto); % al mostramos en nuestro video
-    runloop = isOpen(videoPlayer);
-end
+
+      runloop=true; %creamos un control para el primer video en la capturadel objeto
+      while runloop
+          foto_objeto=snapshot(cam); %tomamos la foto de nuestro objeto
+          step(videoPlayer,foto_objeto); % al mostramos en nuestro video
+          runloop = isOpen(videoPlayer);
+      end
 
 ## Tratado de imagen
 Una vez obtenida la imagen es necesario tratarla, en este caso nos enfocaremos en un objeto dado el color del mismo, por lo que haremos una busqueda por color, no obstante esta viene con ruido, por lo que haremos uso de la transformada de Fourirer para llevar la imagen a la frecuencia y de esta manera hacer una multiplicacion con un filtro pasa bajas para suavizar la imagen, y regreserla al espacio temporal lo que es equivalente a la convolucion en el tiempo.
@@ -43,19 +45,19 @@ Para poder realizar lo anterior nos guiaremos en el el siguiente script, primero
 
 De lo que obtenemos el siguiente script
 
-% %% creacion de filtro pasa bajas
+    % %% creacion de filtro pasa bajas
 
-m = frame_size(1); %esto es y
+    m = frame_size(1); %esto es y
 
-n=frame_size(2); %esto es x
+    n=frame_size(2); %esto es x
 
 % %creamos el filtro pasa bajas para suavizar
 
-filtro=zeros(m,n);
+    filtro=zeros(m,n);
 
-sigma=0.04;
+    sigma=0.04;
 
-for y=1:m
+    for y=1:m
 
         dy=(y-m/2)/(m/2);
         
@@ -69,7 +71,7 @@ for y=1:m
             
         end
         
-end
+    end
 
 Una vez que tenemos nuestro filtro, ahora si podemos proceder a suavizar nuestra imagen.
 
@@ -77,9 +79,10 @@ Al tratarse de una imagen en rgb, es decir, con profundidad n,m,o donde n, es el
 
 Para poder llevar nuestra imagen a la frecuencia pasamos por la funcion de matlab de la tranformada rapida de Fourier para imegenes de dos dimensiones en una sola capa de nuestra imagen (fft2), no obstante esta funsion nos da los armonicos desordenados, por lo que pasamos a usar la funcion de organizar la transformada rapida de Fourier (fftshift) que recibe de argumento la imagen en frecuencia, una vez ahi multiplicamos elemento a elemento la imagen obtenida en la frecuencia con nuestro filtro, una vez filtrada la capa, regresamos son fftshift y a eso aplicamos la transformada inversa rapida de Fourier para dos dimensiones (ifft2), dicho de otro modo tenemos lo siguinete.
 
-profundidad = frame_size(3);
 
-for z=1:profundidad
+    profundidad = frame_size(3);
+
+    for z=1:profundidad
 
         %pasamos la imagen a la frecuencia
         
@@ -93,5 +96,23 @@ for z=1:profundidad
         
         frame(:,:,z) = ifft2(ifftshift(frame_ff(:,:,z)));
         
-end
+    end
     
+# Busqueda de color
+
+Üna vez suavizada nuestra imagen ahora podemos llevar a cabo nuestra busqueda de color, para hacer ello debemos considerar que si nosotros tenemos un objeto de un color rojo, para la camara no sera el mismo color rojo, para contrarestrar esto hacemos uso de la funcion roipoly, la cual al usarse nos dejara seleccionar una parte de nuestra imagen, una seccion de interes por lo que ese valor nos entregara una tupla o una lista de los valores de RGB que nos interesa.
+
+Una vez que tenemos nuestra seleccion pasamos a usar el siguinete script
+
+    umbral=30/255;
+
+    %realizamos la busqueda
+ 
+    b_r= frame(:,:,1)>ref_r-umbral & frame(:,:,1)<ref_r+umbral;
+    b_g= frame(:,:,2)>ref_g-umbral & frame(:,:,2)<ref_g+umbral;
+    b_b= frame(:,:,3)>ref_b-umbral & frame(:,:,3)<ref_b+umbral;
+    busqueda = b_r.*b_g.*b_b;
+    busqueda = medfilt2(busqueda):
+    for i = 1:3
+        frame_encontrado(:,:,i) = frame(:,:,i).*busqueda;
+    end

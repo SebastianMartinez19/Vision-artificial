@@ -100,7 +100,7 @@ Para poder llevar nuestra imagen a la frecuencia pasamos por la funcion de matla
     
 # Busqueda de color
 
-Üna vez suavizada nuestra imagen ahora podemos llevar a cabo nuestra busqueda de color, para hacer ello debemos considerar que si nosotros tenemos un objeto de un color rojo, para la camara no sera el mismo color rojo, para contrarestrar esto hacemos uso de la funcion roipoly, la cual al usarse nos dejara seleccionar una parte de nuestra imagen, una seccion de interes por lo que ese valor nos entregara una tupla o una lista de los valores de RGB que nos interesa.
+Una vez suavizada nuestra imagen ahora podemos llevar a cabo nuestra busqueda de color, para hacer ello debemos considerar que si nosotros tenemos un objeto de un color rojo, para la camara no sera el mismo color rojo, para contrarestrar esto hacemos uso de la funcion roipoly, la cual al usarse nos dejara seleccionar una parte de nuestra imagen, una seccion de interes por lo que ese valor nos entregara una tupla o una lista de los valores de RGB que nos interesa.
 
 Una vez que tenemos nuestra seleccion pasamos a usar el siguinete script
 
@@ -116,3 +116,34 @@ Una vez que tenemos nuestra seleccion pasamos a usar el siguinete script
     for i = 1:3
         frame_encontrado(:,:,i) = frame(:,:,i).*busqueda;
     end
+
+
+El codigo anterior es uan busqueda por cada capa de color, para ello debemos revisar en un umbral de 30 pixeles tanto arriba como abajo, una por cada capa, el resultado de ella es una mascara de unos y ceros donde se tiene el objeto encontrado. La funcion medfil2 nos sirve para rellar con unos la vencidad, es decir, si tenemos un 0 rodeado de 1 este tomara el valor de 1. Lo restante es pasar la imagen por neustra mascara, esto por cada capa.
+
+# Centroide de la imagen
+
+Para este partado, se trabaja sobre la imgane binaria obtenida, es decir, sobre la busqueda, para entender este concepto de los centroides recomiendo ver el siguiente video:
+
+https://youtu.be/sPGfnYuj0-Y
+
+Una vez visto el video, se presentan las formulas, nuestro trabajo es poner esa formula de lo cual obtenemos el siguiente script:
+
+    function momento = momentos(im,i,j)
+        im = im2double(im);
+        im_size=size(im);
+        %im = ~im;
+        momento=0;
+        for x=1:im_size(2)
+            for y=1:im_size(1)
+                momento = momento + sum(x.^i * y.^j * im(y,x));
+            end
+        end
+    end
+
+# movimiento de servos
+Para los servos requerimos de instalar una toolbox la cual viene siendo arduino con matlab, en esta parte se debe tener cuidado para no poner arduino con Simulink.
+
+Para mover los sevos lo haremos por medio de un controlador PID y el cual se basa en el pasado, presente y futuro del error.
+
+## PID
+

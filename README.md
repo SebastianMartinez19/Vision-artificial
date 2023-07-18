@@ -147,3 +147,10 @@ Para mover los sevos lo haremos por medio de un controlador PID y el cual se bas
 
 ## PID
 
+Como ya se sabe el PID es un controlador que se basa en el presente, pasado y furuto de la grafica del error, es decir, consta de tres partes, una ganancia proporcional al error actual, una ganancia que la de fuerza a una parte integral del error y por ultimo pero no menos importante una ganancia que le permite tener fuerza o no a una parte derivativa del error.
+
+La manera en la que este controlador funciona es obtener cada una de las partes necesaria, es decir, la medida del error actual, la sumatoria de todos los errores para alimentar la integral, y por ultimo conocemos la pendiente de nuestra curva para poder obtener la derivada una vez que tenemos esto es momento de sintonizar las ganancias, para ello es necesario conocer el comportamiento de cada una de las partes de nuestro controlador, lo primero es encontrar la ganancia optima de nuestra parte proporcioanl, en base a ello ahora buscams una ganancia optima para un controlador PD reduciiendo a un 90% la ganancia proporcioanl encontrada, y finalmente una ganancia integral, cerramos el sistema, probamos y modificamos segun el comprtamiento de nuestra planta, un poco a prueba y error.
+
+De lo anterior se obteniene el siguiente fragmento de codigo.
+
+

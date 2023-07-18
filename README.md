@@ -151,6 +151,46 @@ Como ya se sabe el PID es un controlador que se basa en el presente, pasado y fu
 
 La manera en la que este controlador funciona es obtener cada una de las partes necesaria, es decir, la medida del error actual, la sumatoria de todos los errores para alimentar la integral, y por ultimo conocemos la pendiente de nuestra curva para poder obtener la derivada una vez que tenemos esto es momento de sintonizar las ganancias, para ello es necesario conocer el comportamiento de cada una de las partes de nuestro controlador, lo primero es encontrar la ganancia optima de nuestra parte proporcioanl, en base a ello ahora buscams una ganancia optima para un controlador PD reduciiendo a un 90% la ganancia proporcioanl encontrada, y finalmente una ganancia integral, cerramos el sistema, probamos y modificamos segun el comprtamiento de nuestra planta, un poco a prueba y error.
 
-De lo anterior se obteniene el siguiente fragmento de codigo.
+De lo anterior se obteniene el siguiente fragmento de codigo
+
+    kp_x = 0.33; % 0.33
+    kd_x = 0.0019; % 0.15
+    ki_x = 0.00085;  % 0.11
+    x_derivada = 0;
+    cx_anterior = set_x;
+    x_integral = 0;
+    
+    % inicializacion de las ganancias en y
+    kp_y = 0.19; %0.19
+    ki_y = 0.00065; % 0.0006
+    kd_y = 0.0016;% 0.0012
+    y_derivada = 0;
+    y_integral = 0;
+    cy_anterior = set_y;
 
 
+    if (isnan(x_error))
+        angulo_x=90;
+        cx_anterior = set_x;
+    else
+        if (x_error <= -20) || (x_error >= 20)
+            if x_error < 0 
+                paso_x = -(abs(x_error)*10)/(124);
+            else
+                paso_x = (abs(x_error)*10)/(124);
+            end
+            x_integral = x_integral + paso_x;  %actualizamos la integral del error en grados 
+            x_derivada = c_x - cx_anterior;  %calculamos la derivada del error
+            x_derivada = x_derivada*10/124; %convertimos o normalizamos
+            angulo_x = angulo_x + kp_x*paso_x + kd_x*x_derivada + ki_x*x_integral;  %calculamos la señal de control
+            cx_anterior = c_x;  %actualizamos la varible
+            vx_error(iteracion-1) = x_error;
+        end
+    end
+
+Lo ultimo que queda por hacer es enviar esa señal a nuestro arduino lo cual se le traduce al servomotor como un angulo y de esa manera tenemos esa estabilidad.
+
+
+
+
+Para mas detalles consultar el documento pdf adjunto a este proyecto.
